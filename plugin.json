@@ -4,7 +4,7 @@
     "description": "Give CheshireCat a voice using OpenAi's voice engine",
     "author_name": "Emanuele Morrone",
     "author_url": "",
-    "plugin_url": "https://github.com/Pingdred/openaai-voice-engine",
+    "plugin_url": "https://github.com/Pingdred/openai-voice-engine",
     "tags": "text-to-speech, tts, openai, voice-engine, CheshireCat-1.6",
     "thumb": ""
 }
