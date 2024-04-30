@@ -67,7 +67,8 @@ def schedule_cleanup():
 def cancel_cleanup():
     global openai_voice_engine_cleanup_task
     if openai_voice_engine_cleanup_task and not openai_voice_engine_cleanup_task.done():
-        openai_voice_engine_cleanup_task = None
+        openai_voice_engine_cleanup_task.cancel()
+        del openai_voice_engine_cleanup_task
 
 
 @hook
@@ -86,5 +87,5 @@ def activated(plugin):
 @plugin
 def deactivated(plugin):
     log.debug("OpenAi Voice Engine: Stopping speach files cleanup task")
-    openai_voice_engine_cleanup_task.cancel()
+    cancel_cleanup()
 
