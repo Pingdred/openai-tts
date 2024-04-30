@@ -16,6 +16,7 @@ class Voice(Enum):
     ECHO = "Echo"
     ONYX = "Onyx"
     NOVA = "Nova"
+    SHIMMER = "Shimmer"
 
 
 class SupportedAudioFormat(Enum):
