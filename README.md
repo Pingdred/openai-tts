@@ -7,18 +7,18 @@ Give the Cheshire cat voice using [OpenAi Voice engine](https://openai.com/blog/
 
 ## Usage
 
-Install the plugin from the CheshireCat admin, under the plugin tab find the plugin using the search bar and click install.
+To start using the plugin, follow these steps:
 
-With that done you'll need to go into the plugin settings, set your OpenAi API-key and you are ready to hear the CheshireCat voice!!!
+1. Install the plugin from the CheshireCat admin panel. Navigate to the plugin tab, use the search bar to locate the plugin, and click on "install".
 
-## Responce type
+2. After installation, access the plugin settings. Set your OpenAI API-key, and you're all set to experience the CheshireCat voice!
 
-Among the available settings you will find the `Response Type` entry, but what is it for?
+## Response Type
 
-There are 2 options available and they are used to determine how you want to receive the voice file:
+What is the purpose of the `Response Type` setting? It determines how you receive the voice file. There are two options available:
 
-- HTML content: The content of the message will be the audio embedded in an html element, this is the default option and is Admin compatible, in this case the `content` of the websocket response will be replaced by ul audio element html which will contain the file.
+- **HTML Content:** By selecting this option, the audio is embedded within an HTML element. This is the default setting and is compatible with Admin. In this case, the `content` of the websocket response will be replaced by an HTML audio element containing the audio file.
 
-- TTS key: The url of the file will be added in the websocket responce in the `tts` key , useful in case the client the CheshireCat communicates with only wants the url of the file, a client that uses it is [Meowgram](https://github.com/Pingdred/Meowgram).
+- **TTS Key:** Choosing this option adds the file URL in the websocket response under the `tts` key. This is useful if the client CheshireCat communicates with only requires the file URL. One such client is [Meowgram].(https://github.com/Pingdred/Meowgram).
 
 ![alt text](img/settings.png)
