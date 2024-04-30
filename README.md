@@ -9,7 +9,7 @@ Give the Cheshire cat voice using [OpenAi Voice engine](https://openai.com/blog/
 
 Install the plugin from the CheshireCat admin, under the plugin tab find the plugin using the search bar and click install.
 
-With that done you'll need to go into the settings of the plugin and set your OpenAi API-key and you are ready to hear the CheshireCat voice!!!
+With that done you'll need to go into the plugin settings, set your OpenAi API-key and you are ready to hear the CheshireCat voice!!!
 
 ## Responce type
 
