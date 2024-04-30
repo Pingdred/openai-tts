@@ -50,10 +50,8 @@ def before_cat_sends_message(message, cat):
         message["content"] = create_html_message(
             audio_source=speech_url, autoplay=settings.autoplay
         )
-    elif settings.responce_type == ResponceType.MEDIA:
-        # Add speech url to websocket responce
-        message["media"] = {
-            "tts": speech_url
-        }
+    elif settings.responce_type == ResponceType.KEY:
+        # Add speech url to websocket responce under tts key
+        message["tts"] = speech_url
    
     return message
