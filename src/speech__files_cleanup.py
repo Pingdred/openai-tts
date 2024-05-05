@@ -28,16 +28,16 @@ def _cleanup_expired_files():
 
 async def cleanup_empty_directories():
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, _cleanup_empty_directories)
+    await loop.run_in_executor(None, _cleanup_directories)
 
 
-def _cleanup_empty_directories():
+def _cleanup_directories(only_empty = True):
     for root, dirs, _ in os.walk(get_speech_file_path()):
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
-            if is_empty_directory(dir_path):
+            if is_empty_directory(dir_path) or not only_empty:
                 shutil.rmtree(dir_path)
-                log.debug(f"Empty directory deleted: {dir_path} ")
+                log.debug(f"Directory deleted: {dir_path} ")
 
 
 def is_empty_directory(dir_path: str) -> bool:
@@ -64,6 +64,7 @@ def schedule_cleanup():
     if openai_voice_engine_cleanup_task is None or openai_voice_engine_cleanup_task.done():
         openai_voice_engine_cleanup_task = asyncio.ensure_future(cleanup_temporary_files())
 
+
 def cancel_cleanup():
     global openai_voice_engine_cleanup_task
     if openai_voice_engine_cleanup_task and not openai_voice_engine_cleanup_task.done():
@@ -86,6 +87,7 @@ def activated(plugin):
 
 @plugin
 def deactivated(plugin):
+    _cleanup_directories(only_empty=False)
     log.debug("OpenAi Voice Engine: Stopping speach files cleanup task")
     cancel_cleanup()
 
