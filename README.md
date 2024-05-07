@@ -36,4 +36,4 @@ The `Response Type` setting defines how you receive the voice file. Choose from 
 
 ## Tips
 
-Don't like CheshireCat's current voice? Just request a change and the magic happens!
+Don't like CheshireCat's voice? Just ask him to change his voice and magic happens!
