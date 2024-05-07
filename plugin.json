@@ -1,6 +1,6 @@
 {
     "name": "TTS powered by OpenAI",
-    "version": "0.0.1",
+    "version": "1.0",
     "description": "Experience the charming voice of the Cheshire Cat with the power of OpenAI TTS API.",
     "author_name": "Emanuele Morrone",
     "author_url": "https://github.com/Pingdred/",
