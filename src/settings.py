@@ -61,10 +61,10 @@ class VoiceEngineSettings(BaseModel):
         description="The Speech will be auto played in the admin",
         default=True
     )
-    send_text: bool = Field(
-        title="Send text (Only HTML content)", 
-        description="Send the text message along the Speech",
-        default=False
+    actions: bool = Field(
+        title="Actions (Plugin reload required)",
+        description="Enable chat interactions to be able to change voices, know current voice or available ones.",
+        default=True
     )
 
 

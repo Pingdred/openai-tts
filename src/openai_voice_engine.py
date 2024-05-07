@@ -42,14 +42,13 @@ def before_cat_sends_message(message, cat):
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
     if settings.responce_type == ResponceType.HTML:
-        # Send transcription 
-        if settings.send_text:
-            cat.send_chat_message(message, save=True)
-
         # Embedd audio in html and update content text
-        message["content"] = create_html_message(
+        html_message = create_html_message(
             audio_source=speech_url, autoplay=settings.autoplay
         )
+
+        cat.send_chat_message(html_message)
+
     elif settings.responce_type == ResponceType.KEY:
         # Add speech url to websocket responce under tts key
         message["tts"] = speech_url
