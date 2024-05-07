@@ -1,9 +1,9 @@
 {
     "name": "OpenAI TTS",
     "version": "0.0.1",
-    "description": "Give CheshireCat a voice using OpenAI's TTS API",
+    "description": "Experience the charming voice of the Cheshire Cat with the power of OpenAI TTS API.",
     "author_name": "Emanuele Morrone",
-    "author_url": "",
+    "author_url": "https://github.com/Pingdred/",
     "plugin_url": "https://github.com/Pingdred/openai-voice-engine",
     "tags": "Text-To-Speech, TTS, OpenAI, Multilingual",
     "thumb": ""
