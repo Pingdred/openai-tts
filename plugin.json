@@ -1,10 +1,10 @@
 {
-    "name": "OpenAI TTS",
+    "name": "TTS powered by OpenAI",
     "version": "0.0.1",
     "description": "Experience the charming voice of the Cheshire Cat with the power of OpenAI TTS API.",
     "author_name": "Emanuele Morrone",
     "author_url": "https://github.com/Pingdred/",
     "plugin_url": "https://github.com/Pingdred/openai-voice-engine",
     "tags": "Text-To-Speech, TTS, OpenAI, Multilingual",
-    "thumb": ""
+    "thumb": "https://github.com/Pingdred/openai-tts/blob/9a163ad6b37fe28dcc5560a21231ddee1747ab22/img/logo.png?raw=true"
 }
