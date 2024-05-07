@@ -1,24 +1,39 @@
-# Openai Voice Engine
+# OpenAI TTS Plugin
 
-[![Awesome plugin](https://custom-icon-badges.demolab.com/static/v1?label=&message=Awesome+plugin&color=000000&style=for-the-badge&logo=cheshire_cat_ai)](https://)  
+[![Awesome plugin](https://custom-icon-badges.demolab.com/static/v1?label=&message=Awesome+plugin&color=000000&style=for-the-badge&logo=cheshire_cat_ai)](https://)
 
-Give the Cheshire cat voice using [OpenAi Voice engine](https://openai.com/blog/navigating-the-challenges-and-opportunities-of-synthetic-voices). Choose from 6 different voices with a variety of [supported languages](https://platform.openai.com/docs/guides/text-to-speech/supported-languages).
+Experience the charming voice of the Cheshire Cat with the power of [OpenAI TTS API](https://platform.openai.com/docs/guides/text-to-speech). Select from 6 distinct voices, each offering a range of expressions and accents across a variety of [supported languages](https://platform.openai.com/docs/guides/text-to-speech/supported-languages).
 
+## Installation
 
-## Usage
+Choose one of the following methods to install the plugin:
 
-To start using the plugin, follow these steps:
+1. **Install via CheshireCat Admin Panel:**
+   - Navigate to the plugins tab in the CheshireCat admin panel.
+   - Utilize the search bar to locate the plugin, then click "install".
 
-1. Install the plugin from the CheshireCat admin panel. Navigate to the plugin tab, use the search bar to locate the plugin, and click on "install".
+2. **Manual Installation:**
+   - Clone the repository into the CheshireCat plugins folder using the command:
 
-2. After installation, access the plugin settings. Set your OpenAI API-key, and you're all set to experience the CheshireCat voice!
+    ```bash
+    git clone https://github.com/Pingdred/openai-tts.git
+    ```
+
+   - Activate the plugin in the admin panel under the plugins tab.
+
+Once installed, access the plugin settings from the admin panel, set your OpenAI API key, and immerse yourself in the enchanting voice of the Cheshire Cat!
 
 ## Response Type
 
-What is the purpose of the `Response Type` setting? It determines how you receive the voice file. There are two options available:
+The `Response Type` setting defines how you receive the voice file. Choose from two options:
 
-- **HTML Content:** By selecting this option, the audio is embedded within an HTML element. This is the default setting and is compatible with Admin. In this case, the `content` of the websocket response will be replaced by an HTML audio element containing the audio file.
+- **HTML Content:**
+  - This default option embeds the audio within an HTML element, compatible with Admin. The `content` of the websocket response will contain an HTML audio element with the audio file.
+- **TTS Key:**
+  - Selecting this option adds the file URL in the websocket response under the `tts` key. Useful for clients like [Meowgram](https://github.com/Pingdred/Meowgram) that require only the file URL.
 
-- **TTS Key:** Choosing this option adds the file URL in the websocket response under the `tts` key. This is useful if the client CheshireCat communicates with only requires the file URL. One such client is [Meowgram].(https://github.com/Pingdred/Meowgram).
+![Plugin Settings](img/settings.png)
 
-![alt text](img/settings.png)
+## Tips
+
+Don't like CheshireCat's current voice? Just request a change and the magic happens!
