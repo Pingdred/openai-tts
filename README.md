@@ -32,7 +32,7 @@ The `Response Type` setting defines how you receive the voice file. Choose from 
 - **TTS Key:**
   - Selecting this option adds the file URL in the websocket response under the `tts` key. Useful for clients like [Meowgram](https://github.com/Pingdred/Meowgram) that require only the file URL.
 
-![Plugin Settings](img/settings.png)
+![Plugin Settings](img/settings_panel.png)
 
 ## Tips
 
