@@ -8,7 +8,7 @@ from .utils import (
     get_speech_file_url,
     create_html_message,
 )
-from .settings import VoiceEngineSettings, ResponceType
+from .settings import VoiceEngineSettings, ResponseType
 
 
 # Text-to-speech function
@@ -41,7 +41,7 @@ def before_cat_sends_message(message, cat):
     # Create speech urls
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
-    if settings.responce_type == ResponceType.HTML:
+    if settings.response_type == ResponseType.HTML:
         # Embedd audio in html and update content text
         html_message = create_html_message(
             audio_source=speech_url, autoplay=settings.autoplay
@@ -49,7 +49,7 @@ def before_cat_sends_message(message, cat):
 
         cat.send_chat_message(html_message)
 
-    elif settings.responce_type == ResponceType.KEY:
+    elif settings.response_type == ResponseType.KEY:
         # Add speech url to websocket responce under tts key
         message["tts"] = speech_url
    

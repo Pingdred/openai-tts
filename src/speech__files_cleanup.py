@@ -10,7 +10,7 @@ from .utils import (
     get_speech_file_path,
 )
 
-openai_voice_engine_cleanup_task = None
+cleanup_task = None
 
 async def cleanup_expired_files():
     loop = asyncio.get_event_loop()
@@ -21,9 +21,10 @@ def _cleanup_expired_files():
     for root, _, files in os.walk(get_speech_file_path()):
         for file_name in files:
             file_path = os.path.join(root, file_name)
+            # Check if the file is expired and should be deleted
             if file_is_expired(file_path):
                 os.remove(file_path)
-            log.debug(f"Speech File deleted: {file_path}")
+                log.debug(f"Speech File deleted: {file_path}")
 
 
 async def cleanup_empty_directories():
@@ -54,40 +55,40 @@ def file_is_expired(file_path: str) -> bool:
 async def cleanup_temporary_files():
     while True:
         await asyncio.sleep(10*60)
-        log.debug("OpenAi Voice Engine: strat cleanup")
+        log.debug("OpenAi Voice Engine: start cleanup")
         await cleanup_expired_files()
         await cleanup_empty_directories()
 
 
 def schedule_cleanup():
-    global openai_voice_engine_cleanup_task
-    if openai_voice_engine_cleanup_task is None or openai_voice_engine_cleanup_task.done():
-        openai_voice_engine_cleanup_task = asyncio.ensure_future(cleanup_temporary_files())
+    global cleanup_task
+    if cleanup_task is None or cleanup_task.done():
+        cleanup_task = asyncio.ensure_future(cleanup_temporary_files())
 
 
 def cancel_cleanup():
-    global openai_voice_engine_cleanup_task
-    if openai_voice_engine_cleanup_task and not openai_voice_engine_cleanup_task.done():
-        openai_voice_engine_cleanup_task.cancel()
-        del openai_voice_engine_cleanup_task
+    global cleanup_task
+    if cleanup_task and not cleanup_task.done():
+        cleanup_task.cancel()
+        del cleanup_task
 
 
 @hook
-def after_cat_bootstrap(cat):
-    # Start Cleanup corutine
-    log.debug("OpenAi Voice Engine: Start speach files cleanup task")
+def after_cat_bootstrap():
+    # Start Cleanup coroutine
+    log.debug("OpenAi Voice Engine: Start speech files cleanup task")
     schedule_cleanup()
 
 
 @plugin
 def activated(plugin):
-    log.debug("OpenAi Voice Engine: Start speach files cleanup task")
+    log.debug("OpenAi Voice Engine: Start speech files cleanup task")
     schedule_cleanup()
 
 
 @plugin
 def deactivated(plugin):
     _cleanup_directories(only_empty=False)
-    log.debug("OpenAi Voice Engine: Stopping speach files cleanup task")
+    log.debug("OpenAi Voice Engine: Stopping speech files cleanup task")
     cancel_cleanup()
 
