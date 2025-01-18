@@ -6,13 +6,13 @@ from cat.mad_hatter.decorators import plugin
 
 
 class VoiceQuality(Enum):
-    """OpenAi Voice Engine supported qualities."""
+    """OpenAI TTS supported qualities."""
     STANDARD = "tts-1"
     HD = "tts-1-hd"
 
 
 class Voice(Enum):
-    """OpenAi Voice Engine supported voices."""
+    """OpenAI TTS supported voices."""
     ALLOY = "Alloy"
     ASH = "Ash"
     CORAL = "Coral"
@@ -25,7 +25,7 @@ class Voice(Enum):
 
 
 class SupportedAudioFormat(Enum):
-    """OpenAi Voice Engine supported audio formats."""
+    """OpenAI TTS supported audio formats."""
     MP3 =  "mp3"
     OPUS = "opus"
     AAC = "aac"
@@ -35,7 +35,7 @@ class SupportedAudioFormat(Enum):
 
 
 class ResponseType(Enum):
-    """OpenAi Voice Engine supported response types."""
+    """OpenAI TTS supported response types."""
     HTML = "HTML content"
     KEY = "TTS key"
 

@@ -22,12 +22,12 @@ def _cleanup_expired_files():
             # Check if the file is expired and should be deleted
             if file_is_expired(file_path):
                 os.remove(file_path)
-                log.debug(f"Speech File deleted: {file_path}")
 
 
 async def cleanup_empty_directories():
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, _cleanup_directories)
+                log.debug(f"OpenAI TTS: Speech File deleted {file_path}")
 
 
 def _cleanup_directories(only_empty = True):
@@ -36,7 +36,7 @@ def _cleanup_directories(only_empty = True):
             dir_path = os.path.join(root, dir_name)
             if is_empty_directory(dir_path) or not only_empty:
                 shutil.rmtree(dir_path)
-                log.debug(f"Directory deleted: {dir_path} ")
+                log.debug(f"OpenAI TTS: Directory deleted {dir_path} ")
 
 
 def is_empty_directory(dir_path: str) -> bool:
@@ -73,20 +73,19 @@ def cancel_cleanup():
 
 @hook
 def after_cat_bootstrap(cat):
-    # Start Cleanup coroutine
-    log.debug("OpenAi Voice Engine: Start speech files cleanup task")
+    log.debug("OpenAI TTS: Start speech files cleanup task")
     schedule_cleanup()
 
 
 @plugin
 def activated(plugin):
-    log.debug("OpenAi Voice Engine: Start speech files cleanup task")
+    log.debug("OpenAI TTS: Start speech files cleanup task")
     schedule_cleanup()
 
 
 @plugin
 def deactivated(plugin):
     _cleanup_directories(only_empty=False)
-    log.debug("OpenAi Voice Engine: Stopping speech files cleanup task")
+    log.debug("OpenAI TTS: Stopping speech files cleanup task")
     cancel_cleanup()
 
