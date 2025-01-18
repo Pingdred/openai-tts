@@ -6,9 +6,7 @@ import time
 from cat.mad_hatter.decorators import hook, plugin
 from cat.log import log
 
-from .utils import (
-    get_speech_file_path,
-)
+from .utils import get_speech_file_path
 
 cleanup_task = None
 
@@ -74,7 +72,7 @@ def cancel_cleanup():
 
 
 @hook
-def after_cat_bootstrap():
+def after_cat_bootstrap(cat):
     # Start Cleanup coroutine
     log.debug("OpenAi Voice Engine: Start speech files cleanup task")
     schedule_cleanup()
