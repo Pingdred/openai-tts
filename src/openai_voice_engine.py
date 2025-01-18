@@ -2,13 +2,8 @@ from openai import OpenAI
 
 from cat.mad_hatter.decorators import hook
 
-from .utils import (
-    generate_file_name,
-    get_speech_file_path,
-    get_speech_file_url,
-    create_html_message,
-)
 from .settings import VoiceEngineSettings, ResponseType
+from .utils import generate_file_name, get_speech_file_path, get_speech_file_url
 
 
 # Text-to-speech function
@@ -47,10 +42,24 @@ def before_cat_sends_message(message, cat):
             audio_source=speech_url, autoplay=settings.autoplay
         )
 
-        cat.send_chat_message(html_message)
 
-    elif settings.response_type == ResponseType.KEY:
-        # Add speech url to websocket responce under tts key
-        message["tts"] = speech_url
+@hook(priority=-sys.maxsize)
+def before_cat_sends_message(message: CatMessage, cat: StrayCat):
+    # If the speech is not needed, skip the process
+    if not cat.working_memory.openai_tts["is_speech_needed"]:
+        return message
+
+    # Load settings
+    settings = VoiceEngineSettings(**(cat.mad_hatter.get_plugin().load_settings()))
+
+    # Generate speech
+    speech_path = generate_audio_file(message.text, cat.user_id, settings)
+    # Create speech file url
+    speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
+
+    # For Cat version below 1.8
+    message.tts = speech_url
+    # For Cat version 1.8 and above
+    message.audio = speech_url
    
     return message

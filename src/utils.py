@@ -17,13 +17,3 @@ def get_speech_file_path(user_id: Union[str, None] = None) -> Path:
 
 def get_speech_file_url(user_id: str) -> str:
     return get_static_url() + f"openai_voice_engine/{user_id}/"    
-
-
-def create_html_message(audio_source: str, autoplay: bool):
-    autoplay = "autoplay" if autoplay else ""
-    audio_element = f"""
-<audio controls {autoplay}>
-    <source src="{audio_source}" type="audio/mpeg">
-</audio>"""
-
-    return audio_element

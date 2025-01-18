@@ -42,14 +42,7 @@ class ResponseType(Enum):
 
 class VoiceEngineSettings(BaseModel):
     openai_api_key: SecretStr = Field(
-        title="OpenAi API Key"
-    )
-    response_type: ResponseType = Field(
-        title="Response type",
-        description="""How you want to receive the speech file:
-         - HTML: The message content will be the audio embedded in an html element (For the admin).
-         - TTS key: The url to file will be added in the websocket response under response["tts"] (For other clients).""",
-        default=ResponseType.HTML
+        title="OpenAI API Key"
     )
     quality: VoiceQuality = Field(
         title="Quality", 
@@ -63,10 +56,6 @@ class VoiceEngineSettings(BaseModel):
         title="Speech format",
         default=SupportedAudioFormat.MP3
     )
-    autoplay: bool = Field(
-        title="Autoplay (Only HTML content)",
-        description="The Speech will be auto played in the admin",
-        default=True
     )
     actions: bool = Field(
         title="Actions (Plugin reload required)",
