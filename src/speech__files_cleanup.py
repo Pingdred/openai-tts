@@ -68,7 +68,7 @@ def cancel_cleanup():
     global cleanup_task
     if cleanup_task and not cleanup_task.done():
         cleanup_task.cancel()
-        del cleanup_task
+        cleanup_task = None
 
 
 @hook
