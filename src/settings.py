@@ -14,10 +14,13 @@ class VoiceQuality(Enum):
 class Voice(Enum):
     """OpenAi Voice Engine supported voices."""
     ALLOY = "Alloy"
-    FABLE = "Fable"
+    ASH = "Ash"
+    CORAL = "Coral"
     ECHO = "Echo"
+    FABLE = "Fable"
     ONYX = "Onyx"
     NOVA = "Nova"
+    SAGE = "Sage"
     SHIMMER = "Shimmer"
 
 
