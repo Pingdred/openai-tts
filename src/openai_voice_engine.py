@@ -29,9 +29,15 @@ def generate_audio_file(text: str, user_id: str, settings: VoiceEngineSettings):
 
     # Create OpenAi Client
     client = OpenAI(api_key=settings.openai_api_key.get_secret_value())
+
+    # TODO: Add check for text length
+
     # Create Speech
     response = client.audio.speech.create(
-        model=settings.quality.value.lower(), voice=settings.voice.value.lower(), input=text
+        model=settings.quality.value.lower(),
+        voice=settings.voice.value.lower(),
+        response_format=settings.output_format.value,
+        input=text
     )
     response.write_to_file(speech_files_path / file_name)
 
