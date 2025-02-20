@@ -184,15 +184,13 @@ def create_audio_message(user_id: str, text: str, original_message: CatMessage, 
 
     new_message = original_message.model_copy()
 
-    if settings.responce_type in [ResponceType.HTML, ResponceType.BOTH]:
+    if settings.responce_type == ResponceType.HTML:
         new_message.text = create_html_message(
             audio_source=speech_url,
             text=text
         )
 
-    if settings.responce_type in [ResponceType.AUDIO_KEY, ResponceType.BOTH]:
-        new_message.audio = speech_url
-
+    new_message.audio = speech_url
     return new_message
 
 

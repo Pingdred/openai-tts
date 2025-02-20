@@ -75,7 +75,6 @@ class VoiceSpeed(Enum):
 class ResponceType(Enum):
     HTML = "HTML content"
     AUDIO_KEY = "WS audio key"
-    BOTH = "Both"
 
         
 class GlobalSettings(BaseModel):
@@ -85,7 +84,7 @@ class GlobalSettings(BaseModel):
     responce_type: ResponceType = Field(
         title="Responce type",
         description="How you want to recive the speech file, as ws key, html content or both.",
-        default=ResponceType.BOTH
+        default=ResponceType.AUDIO_KEY
     )
     when_to_speak: WhenToSpeak = Field(
         title="When to speak",
