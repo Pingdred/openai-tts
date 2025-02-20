@@ -183,22 +183,24 @@ def create_audio_message(cat: StrayCat, text: str, original_message: CatMessage,
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
     new_message = original_message.model_copy()
+    new_message.text = text
 
     if settings.responce_type == ResponceType.HTML:
-        new_message.text = create_html_message(
+        html_message = original_message.model_copy()
+        html_message.text = create_html_message(
             audio_source=speech_url
         )
         # Send the HTML audio element in a separate message
         # withouth saving it in the chat history
-        cat.send_chat_message(new_message)
+        cat.send_chat_message(html_message)
         
-        return original_message
+        return new_message
 
     new_message.audio = speech_url
     return new_message
 
 
-def process_block(cat: StrayCat, block: dict, original_message: CatMessage, settings: GlobalSettings) -> List[CatMessage]:
+def process_block(cat: StrayCat, block: dict, original_message: CatMessage, settings: GlobalSettings) -> CatMessage:
     if block["type"] == "text":
        return create_audio_message(
             cat=cat,
