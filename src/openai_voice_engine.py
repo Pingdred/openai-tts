@@ -176,28 +176,32 @@ def split_at_code_blocks(text: str) -> list[str]:
     return blocks
 
 
-def create_audio_message(user_id: str, text: str, original_message: CatMessage, settings: GlobalSettings) -> str:
+def create_audio_message(cat: StrayCat, text: str, original_message: CatMessage, settings: GlobalSettings) -> str:
     # Generate speech
-    speech_path = generate_audio_file(text, user_id, settings)
+    speech_path = generate_audio_file(text, cat.user_id, settings)
     # Create speech file url
-    speech_url = get_speech_file_url(user_id=user_id) + speech_path
+    speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
     new_message = original_message.model_copy()
 
     if settings.responce_type == ResponceType.HTML:
         new_message.text = create_html_message(
-            audio_source=speech_url,
-            text=text
+            audio_source=speech_url
         )
+        # Send the HTML audio element in a separate message
+        # withouth saving it in the chat history
+        cat.send_chat_message(new_message)
+        
+        return original_message
 
     new_message.audio = speech_url
     return new_message
 
 
-def process_block(block: dict, original_message: CatMessage, settings: GlobalSettings) -> List[CatMessage]:
+def process_block(cat: StrayCat, block: dict, original_message: CatMessage, settings: GlobalSettings) -> List[CatMessage]:
     if block["type"] == "text":
        return create_audio_message(
-            user_id=original_message.user_id,
+            cat=cat,
             text=block["block"],
             original_message=original_message,
             settings=settings
@@ -220,7 +224,7 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     last_block = blocks.pop()
  
     for block in blocks:
-        new_message = process_block(block, message, settings)
+        new_message = process_block(cat, block, message, settings)
         cat.send_chat_message(new_message, save=True)
            
     if last_block["type"] == "code":
@@ -228,7 +232,7 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
         return message
     
     return create_audio_message(
-        user_id=message.user_id,
+        cat=cat,
         text=last_block["block"],
         original_message=message,
         settings=settings
