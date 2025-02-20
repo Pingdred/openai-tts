@@ -1,5 +1,6 @@
 import sys
 import json
+
 from pathlib import Path
 from typing import List
 
@@ -17,7 +18,13 @@ from cat.convo.messages import CatMessage, UserMessage
 from cat.utils import langchain_log_output, langchain_log_prompt
 
 from .settings import GlobalSettings, WhenToSpeak, ResponceType
-from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings, create_html_message
+from .utils import (
+    generate_file_name,
+    get_speech_file_path,
+    get_speech_file_url,
+    load_user_settings,
+    create_html_message,
+)
 
 
 @hook
@@ -184,7 +191,7 @@ def create_audio_message(user_id: str, text: str, original_message: CatMessage, 
         )
 
     if settings.responce_type in [ResponceType.AUDIO_KEY, ResponceType.BOTH]:
-        new_message.tts = speech_url
+        new_message.audio = speech_url
 
     return new_message
 
