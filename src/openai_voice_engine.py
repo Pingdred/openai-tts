@@ -151,8 +151,6 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # Create speech file url
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
-    # For Cat version below 1.8
-    message.tts = speech_url
     # For Cat version 1.8 and above
     message.audio = speech_url
    
