@@ -15,8 +15,8 @@ from cat.looking_glass.stray_cat import StrayCat
 from cat.convo.messages import CatMessage, UserMessage
 from cat.utils import langchain_log_output, langchain_log_prompt
 
-from .settings import GlobalSettings, WhenToSpeak
-from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings
+from .settings import GlobalSettings, WhenToSpeak, ResponceType
+from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings, create_html_message
 
 
 def generate_audio_file(text: str, user_id: str, settings: GlobalSettings) -> Path:
@@ -51,7 +51,11 @@ def generate_audio_file(text: str, user_id: str, settings: GlobalSettings) -> Pa
 
 
 def asked_to_speak(message: UserMessage, cat: StrayCat) -> bool:
-    prompt_text = """Your objective is to determine if the user explicitly asked to respond with speech, audio, or voice.
+    """
+        Chain to determine if the user explicitly asked to respond with speech, audio, voice or asked to read.
+    """
+
+    prompt_text = """Your objective is to determine if the user explicitly asked to respond with speech, audio, voice or asked to read.
 Respond with the following format, setting the value to true if the user explicitly asked to respond with speech false otherwise:
 {{
     "speech_requested": true
@@ -61,7 +65,7 @@ Respond with the following format, setting the value to true if the user explici
     prompt = ChatPromptTemplate(
         messages=[
             SystemMessagePromptTemplate.from_template(template=prompt_text),
-            *[m.langchainfy() for m in cat.working_memory.history[-3:]],
+            *[m.langchainfy() for m in cat.working_memory.history[-3:]], # Add last 3 messagess
             message.langchainfy()
         ]
     )
@@ -151,7 +155,16 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # Create speech file url
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
-    # For Cat version 1.8 and above
-    message.audio = speech_url
+    if settings.responce_type == ResponceType.HTML:
+        # Embedd audio in html and update content text
+        html_message = create_html_message(
+            audio_source=speech_url
+        )
+
+        cat.send_chat_message(html_message)
+
+    elif settings.responce_type == ResponceType.AUDIO_KEY:
+        # For Cat version 1.8 and above
+        message.audio = speech_url
    
     return message

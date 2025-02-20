@@ -71,10 +71,22 @@ class VoiceSpeed(Enum):
         }
         return speed_values[self.value]
 
+
+class ResponceType(Enum):
+    HTML = "HTML content"
+    AUDIO_KEY = "WS audio key"
+
         
 class GlobalSettings(BaseModel):
     openai_api_key: SecretStr = Field(
         title="OpenAI API Key"
+    )
+    responce_type: ResponceType = Field(
+        title="Responce type",
+        description="""How you want to recive the speech file:
+         - HTML: The message content will be the audio embedded in an html element (For the admin).
+         - TTS key: The url to file will be added in the websocket wesponce under responce["tts"] (For other clients).""",
+        default=ResponceType.AUDIO_KEY
     )
     when_to_speak: WhenToSpeak = Field(
         title="When to speak",
