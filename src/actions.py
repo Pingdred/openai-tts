@@ -58,13 +58,12 @@ if is_action_enabled():
     @form
     class ChangeVoice(CatForm):
         model_class = ChangeVoiceModel
-        description = "Use this action to change your voice."
+        description = "This action allows you to change the voice are you currently using.\
+            Use this action only if the user has explicitly asked to change the voice."
         
         start_examples =  [
-            "I do not like your voice",
             "Change your voice",
             "Use the voice Echo",
-            "Speak to me in the voice of Nova"
         ]
 
         def submit(self, form_data) -> str:
@@ -127,7 +126,7 @@ if is_action_enabled():
 
     @tool
     def current_voice_speed(_, cat: StrayCat):
-        """Use this action to know what speed you are currently using. """
+        """Use this action to how fast you are currently speaking."""
         # Load current settings
         settings = load_user_settings(cat.user_id)
 
@@ -155,5 +154,5 @@ if is_action_enabled():
         ]
     )
     def available_voice(_, cat: StrayCat):
-            """Lets you know what voices are available to you."""
+            """Use this action to know which voices are available to use."""
             return "The available voices are : " + ", ".join([v.value for v in Voice])
