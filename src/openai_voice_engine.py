@@ -1,6 +1,7 @@
 import sys
 import json
 from pathlib import Path
+from typing import List
 
 from openai import OpenAI
 
@@ -19,35 +20,17 @@ from .settings import GlobalSettings, WhenToSpeak, ResponceType
 from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings, create_html_message
 
 
-def generate_audio_file(text: str, user_id: str, settings: GlobalSettings) -> Path:
-    # Generate speech file name
-    file_name = generate_file_name(settings.output_format.value)
-    # Get path to speech file
-    speech_files_path = get_speech_file_path(user_id)
+@hook
+def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
+    # Determine if the cat should respond with speech and store it in working memory
+    # This will be used to determine if the cat should generate speech for the message
+    # in later stages of the conversation.
+    cat.working_memory.openai_tts = {
+        "is_speech_needed": speech_needed(user_message, cat)
+    }
 
-    # Create directory to store speech files 
-    speech_files_path.mkdir(parents=True, exist_ok=True)
 
-    # Create OpenAi Client
-    client = OpenAI(api_key=settings.openai_api_key.get_secret_value())
-
-    # Load user settings
-    user_settings = load_user_settings(user_id)
-
-    # Max supported length is 4096 characters, 
-    # mostly there is no need to split the text
-
-    # Create Speech
-    response = client.audio.speech.create(
-        response_format=settings.output_format.value,
-        model=settings.quality.model_name,
-        voice=user_settings.voice.value.lower(),
-        speed=user_settings.speed.speed_value,
-        input=text
-    )
-    response.write_to_file(speech_files_path / file_name)
-
-    return file_name
+# SECTION: Determine if speech is needed
 
 
 def asked_to_speak(message: UserMessage, cat: StrayCat) -> bool:
@@ -105,16 +88,6 @@ def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
             return asked_to_speak(message, cat)
         case _:
             return False
-
-
-@hook
-def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
-    # Determine if the cat should respond with speech and store it in working memory
-    # This will be used to determine if the cat should generate speech for the message
-    # in later stages of the conversation.
-    cat.working_memory.openai_tts = {
-        "is_speech_needed": speech_needed(user_message, cat)
-    }
     
 
 @hook(priority=-sys.maxsize)
@@ -141,6 +114,94 @@ def agent_prompt_prefix(prefix: str, cat: StrayCat) -> str:
     return prefix
 
 
+# SECTION: Process final massege
+
+
+def generate_audio_file(text: str, user_id: str, settings: GlobalSettings) -> Path:
+    # Generate speech file name
+    file_name = generate_file_name(settings.output_format.value)
+    # Get path to speech file
+    speech_files_path = get_speech_file_path(user_id)
+
+    # Create directory to store speech files 
+    speech_files_path.mkdir(parents=True, exist_ok=True)
+
+    # Create OpenAi Client
+    client = OpenAI(api_key=settings.openai_api_key.get_secret_value())
+
+    # Load user settings
+    user_settings = load_user_settings(user_id)
+
+    # Max supported length is 4096 characters, 
+    # mostly there is no need to split the text
+
+    # Create Speech
+    response = client.audio.speech.create(
+        response_format=settings.output_format.value,
+        model=settings.quality.model_name,
+        voice=user_settings.voice.value.lower(),
+        speed=user_settings.speed.speed_value,
+        input=text
+    )
+    response.write_to_file(speech_files_path / file_name)
+
+    return file_name
+
+
+def split_at_code_blocks(text: str) -> list[str]:
+    """
+        Split the text at code blocks and return a list of text blocks.
+    """
+    blocks = []
+    # Split the text at code blocks
+    for idx, block in enumerate(text.split("```")):
+        if idx % 2 == 0:
+            blocks.append({
+                "block": block,
+                "type": "text"
+            })
+        else:
+            blocks.append({
+                "block": f"```{block}```",
+                "type": "code"
+            })
+            
+    return blocks
+
+
+def create_audio_message(user_id: str, text: str, original_message: CatMessage, settings: GlobalSettings) -> str:
+    # Generate speech
+    speech_path = generate_audio_file(text, user_id, settings)
+    # Create speech file url
+    speech_url = get_speech_file_url(user_id=user_id) + speech_path
+
+    new_message = original_message.model_copy()
+
+    if settings.responce_type in [ResponceType.HTML, ResponceType.BOTH]:
+        new_message.text = create_html_message(
+            audio_source=speech_url,
+            text=text
+        )
+
+    if settings.responce_type in [ResponceType.AUDIO_KEY, ResponceType.BOTH]:
+        new_message.tts = speech_url
+
+    return new_message
+
+
+def process_block(block: dict, original_message: CatMessage, settings: GlobalSettings) -> List[CatMessage]:
+    if block["type"] == "text":
+       return create_audio_message(
+            user_id=original_message.user_id,
+            text=block["block"],
+            original_message=original_message,
+            settings=settings
+        )
+        
+    code_message = original_message.model_copy(update={"text": block["block"]})
+    return code_message
+
+
 @hook(priority=-sys.maxsize)
 def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # If the speech is not needed, skip the process
@@ -150,21 +211,21 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # Load settings
     settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
-    # Generate speech
-    speech_path = generate_audio_file(message.text, cat.user_id, settings)
-    # Create speech file url
-    speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
+    blocks = split_at_code_blocks(message.text)
+    last_block = blocks.pop()
+ 
+    for block in blocks:
+        new_message = process_block(block, message, settings)
+        cat.send_chat_message(new_message, save=True)
+           
+    if last_block["type"] == "code":
+        message.text = last_block["block"]
+        return message
+    
+    return create_audio_message(
+        user_id=message.user_id,
+        text=last_block["block"],
+        original_message=message,
+        settings=settings
+    )
 
-    if settings.responce_type == ResponceType.HTML:
-        # Embedd audio in html and update content text
-        html_message = create_html_message(
-            audio_source=speech_url
-        )
-
-        cat.send_chat_message(html_message)
-
-    elif settings.responce_type == ResponceType.AUDIO_KEY:
-        # For Cat version 1.8 and above
-        message.audio = speech_url
-   
-    return message
