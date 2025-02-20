@@ -15,11 +15,11 @@ from cat.looking_glass.stray_cat import StrayCat
 from cat.convo.messages import CatMessage, UserMessage
 from cat.utils import langchain_log_output, langchain_log_prompt
 
-from .settings import GlobalSettings, UserSettings, WhenToSpeak
+from .settings import GlobalSettings, WhenToSpeak
 from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings
 
 
-def generate_audio_file(text: str, user_id: str, settings: GlobalSettings | UserSettings) -> Path:
+def generate_audio_file(text: str, user_id: str, settings: GlobalSettings) -> Path:
     # Generate speech file name
     file_name = generate_file_name(settings.output_format.value)
     # Get path to speech file
@@ -106,6 +106,8 @@ def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
 @hook
 def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
     # Determine if the cat should respond with speech and store it in working memory
+    # This will be used to determine if the cat should generate speech for the message
+    # in later stages of the conversation.
     cat.working_memory.openai_tts = {
         "is_speech_needed": speech_needed(user_message, cat)
     }
@@ -113,6 +115,11 @@ def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
 
 @hook(priority=-sys.maxsize)
 def agent_prompt_prefix(prefix: str, cat: StrayCat) -> str:
+    """
+        Modify the agent prompt prefix to inform the LLM that speech capability is enabled.
+        And based on the settings, provide guidelines for generating text in order to get 
+        better speech output.
+    """
     settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
     prefix += "\n\n# Speech Capability: \nSpeech capability is enabled."
