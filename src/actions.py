@@ -6,7 +6,25 @@ from cat.mad_hatter.decorators import tool
 from cat.experimental.form import form, CatForm
 from .settings import Voice
 
-if MadHatter().get_plugin().load_settings().get("actions", True):
+from .settings import Voice, VoiceSpeed
+from .utils import load_user_settings, save_user_settings
+
+
+def is_action_enabled() -> bool:
+    plugin_path = Path(__file__).parent.parent
+
+    with open(plugin_path / "settings.json") as f:
+        settings = json.load(f)
+
+    return settings["actions"]
+
+
+def pick_random_voice() -> Voice:
+    setting = MadHatter().get_plugin().load_settings()
+    current_voice = setting["voice"]
+    voices = [voice for voice in Voice if voice != current_voice]
+    
+    return random.choice(voices)
 
     def pick_random_voice() -> Voice:
         setting = MadHatter().get_plugin().load_settings()
@@ -22,6 +40,16 @@ if MadHatter().get_plugin().load_settings().get("actions", True):
             description=f"The voice to set, should be be one of {[e.value for e in Voice]}.", 
             default_factory=pick_random_voice
         )
+
+class ChangeVoiceModel(BaseModel):
+    voice: Voice = Field(
+        description=f"The voice to set, should be be one of {[e.value for e in Voice]}.", 
+        default_factory=pick_random_voice
+    )
+
+
+# Only define the actions if they are enabled in the settings
+if is_action_enabled():
 
     @form
     class ChangeVoice(CatForm):
@@ -49,22 +77,25 @@ if MadHatter().get_plugin().load_settings().get("actions", True):
             }
         
     @tool(examples=[
+    @tool(
+        examples=[
             "What's your current voice?",
             "What voice are you using?",
             "Which voices can you use?"
         ]
     )
-    def current_voice(input, cat):
-        """Lets you know what voice you are using."""
+    def current_voice(_, cat: StrayCat):
+        """User this action to know what voice you are currently using. """
         # Load current settings
         settings = cat.mad_hatter.get_plugin().load_settings()
 
         return f"The current voice is {settings['voice']}."
 
-    @tool(examples=[
+    @tool(
+        examples=[
             "Which voices can you use?"
         ]
     )
-    def available_voice(input, cat):
-        """Lets you know what voices are available to you."""
-        return "The available voices are : " + ", ".join([v.value for v in Voice])
+    def available_voice(_, cat: StrayCat):
+            """Lets you know what voices are available to you."""
+            return "The available voices are : " + ", ".join([v.value for v in Voice])
