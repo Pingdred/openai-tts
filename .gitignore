@@ -153,3 +153,4 @@ cython_debug/
 
 # Cheshire Cat Plugin settings
 settings.json
+users_settings/

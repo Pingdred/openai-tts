@@ -7,8 +7,16 @@ from cat.mad_hatter.decorators import plugin
 
 class VoiceQuality(Enum):
     """OpenAI TTS supported qualities."""
-    STANDARD = "tts-1"
-    HD = "tts-1-hd"
+    STANDARD = "Standard"
+    HD = "HD"
+
+    @property
+    def model_name(self) -> str:
+        models = {
+            "Standard": "tts-1",
+            "HD": "tts-1-hd"
+        }
+        return models[self.value]
 
 
 class Voice(Enum):
@@ -48,7 +56,23 @@ class WhenToSpeak(Enum):
     SHORT_TEXT = "Short messages"
     
 
-class VoiceEngineSettings(BaseModel):
+class VoiceSpeed(Enum):
+    """OpenAI TTS supported speeds."""
+    SLOW = "Slow"
+    NORMAL = "Normal"
+    FAST = "Fast"
+
+    @property
+    def speed_value(self) -> float:
+        speed_values = {
+            "Slow": 0.75,
+            "Normal": 1.0,
+            "Fast": 1.25,
+        }
+        return speed_values[self.value]
+
+        
+class GlobalSettings(BaseModel):
     openai_api_key: SecretStr = Field(
         title="OpenAI API Key"
     )
@@ -64,6 +88,10 @@ class VoiceEngineSettings(BaseModel):
     quality: VoiceQuality = Field(
         title="Quality", 
         default=VoiceQuality.STANDARD
+    )
+    speed: VoiceSpeed = Field(
+        title="Speed",
+        default=VoiceSpeed.NORMAL
     )
     output_format: SupportedAudioFormat = Field(
         title="Speech format",
@@ -86,6 +114,17 @@ class VoiceEngineSettings(BaseModel):
     )
 
 
+class UserSettings(BaseModel):
+    voice: Voice = Field(
+        title="Voice", 
+        default=Voice.ALLOY
+    )
+    speed: VoiceSpeed = Field(
+        title="Speed",
+        default=VoiceSpeed.NORMAL
+    )
+    
+
 @plugin
 def settings_model():
-    return VoiceEngineSettings
+    return GlobalSettings

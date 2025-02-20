@@ -1,5 +1,6 @@
 import sys
 import json
+from pathlib import Path
 
 from openai import OpenAI
 
@@ -14,11 +15,11 @@ from cat.looking_glass.stray_cat import StrayCat
 from cat.convo.messages import CatMessage, UserMessage
 from cat.utils import langchain_log_output, langchain_log_prompt
 
-from .settings import VoiceEngineSettings, WhenToSpeak
-from .utils import generate_file_name, get_speech_file_path, get_speech_file_url
+from .settings import GlobalSettings, UserSettings, WhenToSpeak
+from .utils import generate_file_name, get_speech_file_path, get_speech_file_url, load_user_settings
 
 
-def generate_audio_file(text: str, user_id: str, settings: VoiceEngineSettings):
+def generate_audio_file(text: str, user_id: str, settings: GlobalSettings | UserSettings) -> Path:
     # Generate speech file name
     file_name = generate_file_name(settings.output_format.value)
     # Get path to speech file
@@ -30,13 +31,18 @@ def generate_audio_file(text: str, user_id: str, settings: VoiceEngineSettings):
     # Create OpenAi Client
     client = OpenAI(api_key=settings.openai_api_key.get_secret_value())
 
-    # TODO: Add check for text length
+    # Load user settings
+    user_settings = load_user_settings(user_id)
+
+    # Max supported length is 4096 characters, 
+    # mostly there is no need to split the text
 
     # Create Speech
     response = client.audio.speech.create(
-        model=settings.quality.value.lower(),
-        voice=settings.voice.value.lower(),
         response_format=settings.output_format.value,
+        model=settings.quality.model_name,
+        voice=user_settings.voice.value.lower(),
+        speed=user_settings.speed.speed_value,
         input=text
     )
     response.write_to_file(speech_files_path / file_name)
@@ -82,7 +88,7 @@ Respond with the following format, setting the value to true if the user explici
 
 
 def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
-    settings = VoiceEngineSettings(**(cat.mad_hatter.get_plugin().load_settings()))
+    settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
     match settings.when_to_speak:
         case WhenToSpeak.ALWAYS:
@@ -107,7 +113,7 @@ def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
 
 @hook(priority=-sys.maxsize)
 def agent_prompt_prefix(prefix: str, cat: StrayCat) -> str:
-    settings = VoiceEngineSettings(**(cat.mad_hatter.get_plugin().load_settings()))
+    settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
     prefix += "\n\n# Speech Capability: \nSpeech capability is enabled."
 
@@ -131,7 +137,7 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
         return message
 
     # Load settings
-    settings = VoiceEngineSettings(**(cat.mad_hatter.get_plugin().load_settings()))
+    settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
     # Generate speech
     speech_path = generate_audio_file(message.text, cat.user_id, settings)
