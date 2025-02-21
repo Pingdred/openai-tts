@@ -27,16 +27,6 @@ from .utils import (
 )
 
 
-@hook
-def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
-    # Determine if the cat should respond with speech and store it in working memory
-    # This will be used to determine if the cat should generate speech for the message
-    # in later stages of the conversation.
-    cat.working_memory.openai_tts = {
-        "is_speech_needed": speech_needed(user_message, cat)
-    }
-
-
 # SECTION: Determine if speech is needed
 
 
@@ -96,6 +86,16 @@ def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
         case _:
             return False
     
+
+@hook(priority=-sys.maxsize)
+def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
+    # Determine if the cat should respond with speech and store it in working memory
+    # This will be used to determine if the cat should generate speech for the message
+    # in later stages of the conversation.
+    cat.working_memory.openai_tts = {
+        "is_speech_needed": speech_needed(user_message, cat)
+    }
+
 
 @hook(priority=-sys.maxsize)
 def agent_prompt_prefix(prefix: str, cat: StrayCat) -> str:
