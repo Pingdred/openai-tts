@@ -23,17 +23,4 @@ Choose one of the following methods to install the plugin:
 
 Once installed, access the plugin settings from the admin panel, set your OpenAI API key, and immerse yourself in the enchanting voice of the Cheshire Cat!
 
-## Response Type
-
-The `Response Type` setting defines how you receive the voice file. Choose from two options:
-
-- **HTML Content:**
-  - This default option embeds the audio within an HTML element, compatible with Admin. The `content` of the websocket response will contain an HTML audio element with the audio file.
-- **TTS Key:**
-  - Selecting this option adds the file URL in the websocket response under the `tts` key. Useful for clients like [Meowgram](https://github.com/Pingdred/Meowgram) that require only the file URL.
-
-![Plugin Settings](img/settings_panel.png)
-
-## Tips
-
 Don't like CheshireCat's voice? Just ask him to change his voice and magic happens!
