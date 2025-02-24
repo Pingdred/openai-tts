@@ -6,5 +6,6 @@
     "author_url": "https://github.com/Pingdred/",
     "plugin_url": "https://github.com/Pingdred/openai-voice-engine",
     "tags": "Text-To-Speech, TTS, OpenAI, Multilingual",
-    "thumb": "https://github.com/Pingdred/openai-tts/blob/9a163ad6b37fe28dcc5560a21231ddee1747ab22/img/logo.png?raw=true"
+    "thumb": "https://github.com/Pingdred/openai-tts/blob/9a163ad6b37fe28dcc5560a21231ddee1747ab22/img/logo.png?raw=true",
+    "min_cat_version": "1.8"
 }
