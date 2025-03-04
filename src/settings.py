@@ -86,6 +86,11 @@ class GlobalSettings(BaseModel):
         description="How you want to recive the speech file, as ws key, html content or both.",
         default=ResponceType.AUDIO_KEY
     )
+    show_caption: bool = Field(
+        title="Show caption (Only for audio key)",
+        description="Show caption for the speech file.",
+        default=True
+    )
     when_to_speak: WhenToSpeak = Field(
         title="When to speak",
         description="Determines speech generation trigger: always, on request, or based on message length.",

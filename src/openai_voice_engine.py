@@ -51,9 +51,9 @@ Respond with the following format, setting the value to true if the user explici
     )
 
     chain = (prompt 
-        | RunnableLambda(lambda x: langchain_log_prompt(x, "Ask to speak prompt") if log.LOG_LEVEL == "INFO" else x)
+        | RunnableLambda(lambda x: langchain_log_prompt(x, "Ask to speak prompt"))
         | cat._llm 
-        | RunnableLambda(lambda x: langchain_log_output(x, "Ask to speak output") if log.LOG_LEVEL == "INFO" else x)
+        | RunnableLambda(lambda x: langchain_log_output(x, "Ask to speak output"))
         # Sometimes some LLMs write True or False instead of true or false
         | RunnableLambda(lambda x: setattr(x, "content", x.content.lower()) or x)
         | JsonOutputParser()
@@ -183,7 +183,8 @@ def create_audio_message(cat: StrayCat, text: str, original_message: CatMessage,
     speech_url = get_speech_file_url(user_id=cat.user_id) + speech_path
 
     new_message = original_message.model_copy()
-    new_message.text = text
+    if settings.show_caption:
+        new_message.text = text
 
     if settings.responce_type == ResponceType.HTML:
         html_message = original_message.model_copy()
@@ -222,13 +223,19 @@ def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # Load settings
     settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
+    # Split the message at code blocks
+    # to process them separately
     blocks = split_at_code_blocks(message.text)
     last_block = blocks.pop()
- 
+    
+    # Process each block sending the code blocks as messages
+    # and the text blocks as audio messages
     for block in blocks:
         new_message = process_block(cat, block, message, settings)
         cat.send_chat_message(new_message, save=True)
            
+    # Process the last block and return the message
+    # to let finish the Chehsire Cat response pipeline
     if last_block["type"] == "code":
         message.text = last_block["block"]
         return message
