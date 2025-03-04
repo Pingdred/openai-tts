@@ -71,7 +71,7 @@ Respond with the following format, setting the value to true if the user explici
     return output["speech_requested"]
 
 
-def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
+def speech_needed(message: CatMessage, cat: StrayCat) -> bool:
     settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
 
     match settings.when_to_speak:
@@ -82,19 +82,10 @@ def speech_needed(message: UserMessage, cat: StrayCat) -> bool:
         case WhenToSpeak.SHORT_TEXT:
             return len(message.text) <= settings.message_length
         case WhenToSpeak.WHEN_ASKED:
-            return asked_to_speak(message, cat)
+            user_message = cat.working_memory.user_message_json
+            return asked_to_speak(user_message, cat)
         case _:
             return False
-    
-
-@hook(priority=-sys.maxsize)
-def before_cat_reads_message(user_message: UserMessage, cat: StrayCat):
-    # Determine if the cat should respond with speech and store it in working memory
-    # This will be used to determine if the cat should generate speech for the message
-    # in later stages of the conversation.
-    cat.working_memory.openai_tts = {
-        "is_speech_needed": speech_needed(user_message, cat)
-    }
 
 
 @hook(priority=-sys.maxsize)
@@ -217,7 +208,7 @@ def process_block(cat: StrayCat, block: dict, original_message: CatMessage, sett
 @hook(priority=-sys.maxsize)
 def before_cat_sends_message(message: CatMessage, cat: StrayCat):
     # If the speech is not needed, skip the process
-    if not cat.working_memory.openai_tts["is_speech_needed"]:
+    if not speech_needed(message, cat):
         return message
 
     # Load settings
