@@ -46,7 +46,6 @@ Respond with the following format, setting the value to true if the user explici
         messages=[
             SystemMessagePromptTemplate.from_template(template=prompt_text),
             *[m.langchainfy() for m in cat.working_memory.history[-3:]], # Add last 3 messagess
-            message.langchainfy()
         ]
     )
 
