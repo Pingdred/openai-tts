@@ -116,12 +116,7 @@ class GlobalSettings(BaseModel):
         title="Message length",
         description="Minimum character count to trigger speech for long or short messages.",
         default=300
-    )
-    optimize_text: bool = Field(
-        title="Optimize text",
-        description="Guide the LLM to generate text more suitable for speech.",
-        default=True
-    )    
+    ) 
     actions: bool = Field(
         title="Actions (Plugin reload required)",
         description="Enable chat interactions to be able to change voices, know current voice or available ones.",

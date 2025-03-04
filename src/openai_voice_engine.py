@@ -92,23 +92,8 @@ def speech_needed(message: CatMessage, cat: StrayCat) -> bool:
 def agent_prompt_prefix(prefix: str, cat: StrayCat) -> str:
     """
         Modify the agent prompt prefix to inform the LLM that speech capability is enabled.
-        And based on the settings, provide guidelines for generating text in order to get 
-        better speech output.
     """
-    settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
-
-    prefix += "\n\n# Speech Capability: \nSpeech capability is enabled."
-
-    if cat.working_memory.openai_tts["is_speech_needed"]:
-        prefix += " The text you write will be converted to speech.\n"
-
-        # Provide guideline for how to generate text
-        if settings.optimize_text:
-            prefix += (
-                "For a better experience, write only text in a format that can be converted to speech using a text-to-speech engine.\n"
-                "Avoid using characters that cannot be pronounced like emojis, special characters, or code snippets."
-            )
-
+    prefix += "\n\n# Speech Capability: \n - You have the ability to speak.\n"
     return prefix
 
 
