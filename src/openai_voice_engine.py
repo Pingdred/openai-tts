@@ -2,20 +2,20 @@ import sys
 import json
 
 from pathlib import Path
-from typing import List
 
 from openai import OpenAI
+from pydantic import BaseModel
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableLambda
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts.chat import SystemMessagePromptTemplate
 
 from cat.log import log
 from cat.mad_hatter.decorators import hook
 from cat.looking_glass.stray_cat import StrayCat
 from cat.convo.messages import CatMessage, UserMessage
-from cat.utils import langchain_log_output, langchain_log_prompt
+from cat.utils import langchain_log_output, langchain_log_prompt, parse_json
 
 from .settings import GlobalSettings, WhenToSpeak, ResponceType
 from .utils import (
@@ -55,11 +55,15 @@ Respond with the following format, setting the value to true if the user explici
         | RunnableLambda(lambda x: langchain_log_output(x, "Ask to speak output"))
         # Sometimes some LLMs write True or False instead of true or false
         | RunnableLambda(lambda x: setattr(x, "content", x.content.lower()) or x)
-        | JsonOutputParser()
+        | StrOutputParser()
     )
 
     try:
+        class Response(BaseModel):
+            speech_requested: bool
+
         output = chain.invoke({"user_message": message.text})
+        output = parse_json(output, Response)
     except json.JSONDecodeError:
         log.error("Unparsable output, setting speech_requested to False")
         return False
@@ -67,8 +71,7 @@ Respond with the following format, setting the value to true if the user explici
         log.error(f"Error while processing output, setting speech_requested to False: {e}")
         return False
         
-    return output["speech_requested"]
-
+    return output.speech_requested
 
 def speech_needed(message: CatMessage, cat: StrayCat) -> bool:
     settings = GlobalSettings(**(cat.mad_hatter.get_plugin().load_settings()))
